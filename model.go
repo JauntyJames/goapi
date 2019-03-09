@@ -17,8 +17,9 @@ func (p *product) getProduct(db *sql.DB) error {
 
 func (p *product) updateProduct(db *sql.DB) error {
 	_, err :=
-		db.Exec("UPDATE products SET name=$1, price=$2, WHERE id=$3",
+		db.Exec("UPDATE products SET name=$1, price=$2 WHERE id=$3",
 			p.Name, p.Price, p.ID)
+
 	return err
 }
 
@@ -40,7 +41,7 @@ func (p *product) createProduct(db *sql.DB) error {
 	return nil
 }
 
-func (p *product) getProducts(db *sql.DB, start, count int) ([]product, error) {
+func getProducts(db *sql.DB, start, count int) ([]product, error) {
 	rows, err := db.Query(
 		"SELECT id, name, price FROM products LIMIT $1 OFFSET $2",
 		count, start)
