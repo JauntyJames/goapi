@@ -12,11 +12,13 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// App defines the structure for the application object.
 type App struct {
 	Router *mux.Router
 	DB     *sql.DB
 }
 
+// Initialize connects to DB, creates router, and initializes routes.
 func (a *App) Initialize(user, password, dbname string) {
 	connectionString :=
 		fmt.Sprintf("host=localhost port=5432 user=%s password=%s dbname=%s sslmode=disable", user, password, dbname)
@@ -31,6 +33,7 @@ func (a *App) Initialize(user, password, dbname string) {
 	a.initializeRoutes()
 }
 
+// Run starts a server listening on port 8000.
 func (a *App) Run(addr string) {
 	log.Fatal(http.ListenAndServe(":8000", a.Router))
 }
