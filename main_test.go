@@ -9,12 +9,15 @@ import (
 	"os"
 	"strconv"
 	"testing"
+
+	"github.com/joho/godotenv"
 )
 
 var a App
 
 func TestMain(m *testing.M) {
 	a = App{}
+	godotenv.Load()
 	a.Initialize(
 		os.Getenv("TEST_DB_USERNAME"),
 		os.Getenv("TEST_DB_PASSWORD"),
