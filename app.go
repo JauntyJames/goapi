@@ -9,7 +9,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	_ "github.com/lib/pq"
+	_ "gopkg.in/goracle.v2"
 )
 
 // App defines the structure for the application object.
@@ -20,11 +20,14 @@ type App struct {
 
 // Initialize connects to DB, creates router, and initializes routes.
 func (a *App) Initialize(user, password, dbname string) {
+	// connectionString :=
+	// fmt.Sprintf("host=localhost port=5432 user=%s password=%s dbname=%s sslmode=disable", user, password, dbname)
+
 	connectionString :=
-		fmt.Sprintf("host=localhost port=5432 user=%s password=%s dbname=%s sslmode=disable", user, password, dbname)
+		fmt.Sprintf("%s/%s@%s", user, password, dbname)
 
 	var err error
-	a.DB, err = sql.Open("postgres", connectionString)
+	a.DB, err = sql.Open("goracle", connectionString)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -19,9 +19,9 @@ func TestMain(m *testing.M) {
 	a = App{}
 	godotenv.Load()
 	a.Initialize(
-		os.Getenv("TEST_DB_USERNAME"),
-		os.Getenv("TEST_DB_PASSWORD"),
-		os.Getenv("TEST_DB_NAME"),
+		os.Getenv("ATP_TEST_USERNAME"),
+		os.Getenv("ATP_TEST_PASSWORD"),
+		os.Getenv("ATP_TEST_NAME"),
 	)
 
 	ensureTableExists()

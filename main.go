@@ -10,8 +10,8 @@ func main() {
 	a := App{}
 	godotenv.Load()
 	a.Initialize(
-		os.Getenv("APP_DB_USERNAME"),
-		os.Getenv("APP_DB_PASSWORD"),
-		os.Getenv("APP_DB_NAME"))
-	a.Run(":8080")
+		os.Getenv("APT_TEST_USERNAME"),
+		os.Getenv("ATP_TEST_PASSWORD"),
+		os.Getenv("ATP_TEST_NAME"))
+	a.Run(":8000")
 }
