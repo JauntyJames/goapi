@@ -1,3 +1,4 @@
-.vscode/
+oradbInstantClient
+.vscode/*
 .DS_Store
 .env
