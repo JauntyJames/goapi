@@ -30,7 +30,7 @@ WORKDIR $GOPATH/src/App
 ADD ./wallet /usr/lib/oracle/18.3/client64/lib/network/admin/
 
 # Add go files for api
-ADD ./app/* .
+ADD ./app/* ./
 
 # Install goracle library for go to connect to db
 RUN go get -d -v ./... && \
@@ -40,4 +40,5 @@ go install -v ./...
 EXPOSE 8000
 
 # Start app logic
-CMD go run app/main.go
+RUN go build main.go app.go model.go;
+CMD ["./main"]
