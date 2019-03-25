@@ -1,7 +1,3 @@
-# This Dockerfile builds off the Oracle Dockerfile for Oracle Instant Client 18.3.0
-# which can be found at
-# https://github.com/oracle/docker-images/blob/master/OracleInstantClient/dockerfile/18.3.0/Dockerfile
-#
 # HOW TO BUILD THIS IMAGE
 # -----------------------
 # Run:

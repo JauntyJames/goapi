@@ -17,7 +17,10 @@ var a App
 
 func TestMain(m *testing.M) {
 	a = App{}
-	godotenv.Load()
+	err := godotenv.Load("../.env")
+	if err != nil {
+		log.Fatal("Error loading the .env file")
+	}
 	a.Initialize(
 		os.Getenv("ATP_TEST_USERNAME"),
 		os.Getenv("ATP_TEST_PASSWORD"),
@@ -152,7 +155,7 @@ func addProducts(count int) {
 		count = 1
 	}
 	for i := 0; i < count; i++ {
-		a.DB.Exec("INSERT INTO products(name, price) VALUES($1, $2)", "Product "+strconv.Itoa(i), (i+1.0)*10)
+		a.DB.Exec("INSERT INTO products(name, price) VALUES(:1, :2)", "Product "+strconv.Itoa(i), (i+1.0)*10)
 	}
 }
 
@@ -163,11 +166,30 @@ func checkResponseCode(t *testing.T, expected, actual int) {
 }
 func clearTable() {
 	a.DB.Exec("DELETE FROM products")
-	a.DB.Exec("ALTER SEQUENCE products_id_seq RESTART WITH 1")
+	a.DB.Exec("ALTER SEQUENCE products_seq RESTART WITH 1")
 }
 
 func ensureTableExists() {
-	if _, err := a.DB.Exec(tableCreationQuery); err != nil {
+	tx, err := a.DB.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer tx.Rollback()
+	_, err = tx.Exec(`DROP TABLE products`)
+	_, err = tx.Exec(`DROP SEQUENCE products_seq`)
+	_, err = tx.Exec(`CREATE TABLE products (
+		id NUMBER(10) NOT NULL,
+		name VARCHAR2(50) NOT NULL,
+		unitProce NUMBER NOT NULL)`)
+	_, err = tx.Exec(`ALTER TABLE products ADD (
+		 CONSTRAINT products_pk PRIMARY KEY (id))`)
+	_, err = tx.Exec(`CREATE SEQUENCE products_seq START WITH 1`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
 		log.Fatal(err)
 	}
 }
@@ -178,10 +200,16 @@ func executeRequest(req *http.Request) *httptest.ResponseRecorder {
 	return rr
 }
 
-const tableCreationQuery = `CREATE TABLE IF NOT EXISTS products
-(
-	id SERIAL,
-	name TEXT NOT NULL,
-	price NUMERIC(10,2) NOT NULL DEFAULT 0.00,
-	CONSTRAINT products_pkey PRIMARY KEY (id)
-)`
+const tableCreationQuery = `DROP TABLE Products;
+DROP SEQUENCE Products_seq;
+
+CREATE TABLE Products (
+	ProductId NUMBER(10) NOT NULL,
+	ProductName VARCHAR2(50) NOT NULL,
+	UnitPrice NUMBER NOT NULL
+);
+
+ALTER TABLE Products ADD (CONSTRAINT Products_pk PRIMARY KEY (ProductId));
+
+CREATE SEQUENCE Products_seq START WITH 1;
+`
