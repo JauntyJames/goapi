@@ -176,14 +176,11 @@ func ensureTableExists() {
 	}
 	defer tx.Rollback()
 	_, err = tx.Exec(`DROP TABLE products`)
-	_, err = tx.Exec(`DROP SEQUENCE products_seq`)
 	_, err = tx.Exec(`CREATE TABLE products (
-		id NUMBER(10) NOT NULL,
+		id NUMBER(10) GENERATED ALWAYS AS IDENTITY,
 		name VARCHAR2(50) NOT NULL,
-		unitProce NUMBER NOT NULL)`)
-	_, err = tx.Exec(`ALTER TABLE products ADD (
-		 CONSTRAINT products_pk PRIMARY KEY (id))`)
-	_, err = tx.Exec(`CREATE SEQUENCE products_seq START WITH 1`)
+		price NUMBER NOT NULL)`)
+
 	if err != nil {
 		log.Fatal(err)
 	}
