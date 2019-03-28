@@ -2,9 +2,8 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
-
-	_ "gopkg.in/goracle.v2"
 )
 
 type product struct {
@@ -33,24 +32,26 @@ func (p *product) deleteProduct(db *sql.DB) error {
 }
 
 func (p *product) createProduct(db *sql.DB) error {
-	tx, err := db.Begin()
+
+	sqlStatement := "INSERT INTO products VALUES (:1, :2, :3)"
+
+	stmt, err := db.Prepare(sqlStatement)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer tx.Rollback()
-	err = tx.Exec(
-		"INSERT INTO products (name, price) VALUES (:1, :2) RETURNING id",
-		p.Name, p.Price).Scan(&p.ID)
-	if err != nil {
-		return err
+	res, execErr := stmt.Exec(nil, p.Name, p.Price)
+	if execErr != nil {
+		log.Fatal(execErr)
 	}
 
-	err = tx.Commit()
+	lastID, err := res.LastInsertId()
 	if err != nil {
+		fmt.Printf("Works even if it says it failed\n")
 		log.Fatal(err)
 	}
+	fmt.Printf("ID = %d", lastID)
+	return err
 
-	return nil
 }
 
 func getProducts(db *sql.DB, start, count int) ([]product, error) {
