@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 )
 
@@ -13,7 +12,7 @@ type product struct {
 }
 
 func (p *product) getProduct(db *sql.DB) error {
-	return db.QueryRow("SELECT name, price FROM products WHERE id=:1",
+	return db.QueryRow("SELECT name, price FROM products WHERE ID=:1",
 		p.ID).Scan(&p.Name, &p.Price)
 }
 
@@ -34,22 +33,19 @@ func (p *product) deleteProduct(db *sql.DB) error {
 func (p *product) createProduct(db *sql.DB) error {
 
 	sqlStatement := "INSERT INTO products VALUES (:1, :2, :3)"
-
-	stmt, err := db.Prepare(sqlStatement)
-	if err != nil {
-		log.Fatal(err)
-	}
-	res, execErr := stmt.Exec(nil, p.Name, p.Price)
-	if execErr != nil {
-		log.Fatal(execErr)
+	tx, err := db.Begin()
+	_, errExec := tx.Exec(sqlStatement, nil, p.Name, p.Price)
+	if errExec != nil {
+		tx.Rollback()
+		log.Fatal(errExec)
 	}
 
-	lastID, err := res.LastInsertId()
+	err = tx.QueryRow("SELECT * FROM products WHERE ID = (SELECT MAX(ID) FROM PRODUCTS)").Scan(&p.ID, &p.Name, &p.Price)
 	if err != nil {
-		fmt.Printf("Works even if it says it failed\n")
 		log.Fatal(err)
+		tx.Commit()
 	}
-	fmt.Printf("ID = %d", lastID)
+
 	return err
 
 }
